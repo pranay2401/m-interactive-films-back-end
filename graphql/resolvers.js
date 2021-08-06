@@ -3,6 +3,7 @@ const _isEmpty = require('lodash/isEmpty');
 const fetch = require("node-fetch");
 const { database, firebaseClient } = require("../services/firebase");
 const userProfile = require("./mapping/userProfile");
+const movie = require('./mapping/movie');
 
 const baseDBURL =
   process.env.NODE_ENV === "production"
@@ -29,16 +30,34 @@ const resolvers = {
         return graphqlUser;
       });
       return mapsKeys;
-
-      // this is not the right way check below link for the right way to access
-      // https://firebase.google.com/docs/database/web/read-and-write?authuser=0
     },
+
+    movies: async () => {
+      const data = await fetch(`${baseDBURL}/movies.json`);
+      const dataJson = await data.json();
+      const keys = Object.keys(dataJson);
+      const mapsKeys = keys.map(function (item) {
+        const movieData = dataJson[item];
+        const graphqlMovie = movie(movieData);
+        return graphqlMovie;
+      });
+      return mapsKeys;
+    },
+
+    movie: async (_, { mId }) => {
+      const data = await fetch(`${baseDBURL}/movies/${mId}.json`);
+      const dataJson = await data.json();
+      return dataJson;
+    }
   },
+
   Mutation: {
     createUser: async (parent, data, { models }) => {
+      // TODO : if email exists, then don't create 
       if (!data) {
         return "No data provided";
       }
+
 
       let uid = data.uid;
 
@@ -47,10 +66,11 @@ const resolvers = {
         data.uid = uid
       }
 
+      // TODO: return data
       firebaseClient
-          .database()
-          .ref("users/" + uid)
-          .set(data);
+        .database()
+        .ref("users/" + data.uid)
+        .set(data);
     },
 
     addMovie: async (parent, data, { models }) => {
@@ -58,18 +78,18 @@ const resolvers = {
         return "No data provided";
       }
 
-      let mId = data.id;
+      let mId = data.mId;
 
       if (_isEmpty(mId)) {
         mId = uuidv4();
-        data.id = mId
+        data.mId = mId;
       }
 
       firebaseClient
-          .database()
-          .ref("movies/" + mId)
-          .set(data);
-    },
+        .database()
+        .ref("movies/" + mId)
+        .set(JSON.parse(JSON.stringify(data)));
+    }
 
   },
 };

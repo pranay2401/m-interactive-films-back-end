@@ -7,13 +7,19 @@ const typeDefs = `
     emailVerified: Boolean
   }
 
-  input Thumbnail {
+  type Thumbnail {
     url: String,
     height: Int,
     width: Int
   }
 
-  input Thumbnails {
+  input InputThumbnail {
+    url: String,
+    height: Int,
+    width: Int
+  }
+
+  type Thumbnails {
     default: Thumbnail,    
     medium: Thumbnail,    
     high: Thumbnail,    
@@ -21,42 +27,110 @@ const typeDefs = `
     maxres: Thumbnail,    
   }
 
-  input Comment {
+  input InputThumbnails {
+    default: InputThumbnail,    
+    medium: InputThumbnail,    
+    high: InputThumbnail,    
+    standard: InputThumbnail,    
+    maxres: InputThumbnail,    
+  }
+
+  type Comment {
+    id: ID,
     userId: String,
     data: String,
     rating: String
   }
 
-  input Hotspot {
-    id: String,
-    name: String,
-    startpoint: Int
+  input InputComment {
+    id: ID,
+    userId: String,
+    data: String,
+    rating: String
   }
 
-  input Overlay {
-    id: String,
+  type Hotspot {
+    id: ID,
+    name: String,
+    startPoint: Int
+  }
+
+  input InputHotspot {
+    id: ID,
+    name: String,
+    startPoint: Int
+  }
+
+  type Overlay {
+    id: ID,
     name: String,
     jumpPoint: Int,
     templateActionId: String
   }
 
-  input Trigger {
-    id: String,
+  input InputOverlay {
+    id: ID,
+    name: String,
+    jumpPoint: Int,
+    templateActionId: String
+  }
+
+  type TemplateAction {
+    id: ID,
+    title: String,
+    leftHotspotId: String,
+    rightHotspotId: String,
+  }
+
+  input InputTemplateAction {
+    id: ID,
+    title: String,
+    leftHotspotId: String,
+    rightHotspotId: String,
+  }
+
+  type Trigger {
+    id: ID,
     type: String,
     name: String,
     startPoint: Int,
     skipTo: Int
   }
 
-  input Template {
-    id: String,
+  input InputTrigger {
+    id: ID,
+    type: String,
+    name: String,
+    startPoint: Int,
+    skipTo: Int
+  }
+
+  type Template {
+    id: ID,
     title: String,
     noOfHotspots: Int
   }
 
-  
-  input PlayerOverlay {
-    overlayId: String,
+  input InputTemplate {
+    id: ID,
+    title: String,
+    noOfHotspots: Int
+  }
+
+  type PlayerOverlay {
+    overlayId: ID,
+    overlayTemplate: String,
+    overlayName: String,
+    jumpPoint: Int,
+    templateTitle: String,
+    templateLeftAction: Int,
+    templateRightAction: Int,
+    templateLeftLabel: String,
+    templateRightLabel: String,
+  }
+
+  input InputPlayerOverlay {
+    overlayId: ID,
     overlayTemplate: String,
     overlayName: String,
     jumpPoint: Int,
@@ -68,7 +142,7 @@ const typeDefs = `
   }
 
   type Movie {
-    id: ID,
+    mId: ID,
     name: String,
     title: String,
     description: String,
@@ -77,6 +151,7 @@ const typeDefs = `
     genre: String,
     rating: String,
     createdOn: String,
+    lastUpdated: String,
     publishedAt: String,
     isPublished: Boolean,
     publisher: String,
@@ -86,6 +161,7 @@ const typeDefs = `
     hotspots: [Hotspot],
     overlays: [Overlay],
     triggers: [Trigger],
+    templateActions: [TemplateAction],
     interactiveData: [PlayerOverlay]
   }
 
@@ -94,7 +170,7 @@ const typeDefs = `
     user(uid: ID!): User,
     users:[User],
     movies:[Movie],
-    movie(uid: ID!): Movie
+    movie(mId: ID!): Movie
   }
 
   type Mutation {
@@ -106,12 +182,12 @@ const typeDefs = `
       ): User
     
     addMovie(
-      id: ID,
+      mId: ID,
       name: String!,
       title: String!,
       description: String!,
       url: String!,
-      thumbnails: Thumbnails,
+      thumbnails: InputThumbnails,
       genre: String,
       rating: String,
       createdOn: String,
@@ -119,12 +195,13 @@ const typeDefs = `
       isPublished: Boolean,
       publisher: String,
       isFeatured: Boolean,
-      comments: [Comment],
+      comments: [InputComment],
       watchlistedUsers: [String],
-      hotspots: [Hotspot],
-      overlays: [Overlay],
-      triggers: [Trigger],
-      interactiveData: [PlayerOverlay]
+      hotspots: [InputHotspot],
+      overlays: [InputOverlay],
+      triggers: [InputTrigger],
+      templateActions: [InputTemplateAction],
+      interactiveData: [InputPlayerOverlay]
     ): Movie
   }
 `;
