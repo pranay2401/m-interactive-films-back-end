@@ -89,6 +89,7 @@ const resolvers = {
         data.mId = mId;
       }
 
+      let writeResult
       await firebaseDB.ref("movies/" + mId)
          .set(JSON.parse(JSON.stringify(data)), (error) => {
           if (error) {

@@ -11,7 +11,7 @@ function movie(data) {
 		createdOn: data.createdOn,
 		publishedAt: data.publishedAt,
 		isPublished: data.isPublished,
-		editor: data.editor,
+		editorId: data.editorId,
 		isFeatured: data.isFeatured,
 		watchlistedUsers: data.watchlistedUsers,
         comments: data.comments,
