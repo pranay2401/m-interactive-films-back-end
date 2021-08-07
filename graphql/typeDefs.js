@@ -4,7 +4,9 @@ const typeDefs = `
     displayName: String
     email: String
     photoURL: String
-    emailVerified: Boolean
+    emailVerified: Boolean,
+    watchlistedMovies: [String],
+    editedMovies: [String]
   }
 
   type Thumbnail {
@@ -154,7 +156,7 @@ const typeDefs = `
     lastUpdated: String,
     publishedAt: String,
     isPublished: Boolean,
-    publisher: String,
+    editorId: ID,
     isFeatured: Boolean,
     comments: [Comment],
     watchlistedUsers: [String],
@@ -184,25 +186,21 @@ const typeDefs = `
     
     addMovie(
       mId: ID!,
-      name: String,
       title: String!,
-      description: String,
+      editorId: ID!,
       url: String!,
+      name: String,
+      description: String,
       thumbnails: InputThumbnails,
       genre: String,
       rating: String,
-      createdOn: String,
-      publishedAt: String,
       isPublished: Boolean,
-      publisher: String,
       isFeatured: Boolean,
       comments: [InputComment],
-      watchlistedUsers: [String],
       hotspots: [InputHotspot],
       overlays: [InputOverlay],
       triggers: [InputTrigger],
       templateActions: [InputTemplateAction],
-      interactiveData: [InputPlayerOverlay]
     ): Movie
   }
 `;

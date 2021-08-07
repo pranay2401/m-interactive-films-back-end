@@ -1,5 +1,6 @@
 function movie(data) {
     return {
+        id: data.id,
         mId: data.mId,
         name: data.name,
         title: data.title,
@@ -11,7 +12,7 @@ function movie(data) {
 		createdOn: data.createdOn,
 		publishedAt: data.publishedAt,
 		isPublished: data.isPublished,
-		publisher: data.publisher,
+		editorId: data.editorId,
 		isFeatured: data.isFeatured,
 		watchlistedUsers: data.watchlistedUsers,
         comments: data.comments,

@@ -1,14 +1,16 @@
-const { v4: uuidv4 } = require('uuid');
-const _isEmpty = require('lodash/isEmpty');
+const { v4: uuidv4 } = require("uuid");
+const _isEmpty = require("lodash/isEmpty");
 const fetch = require("node-fetch");
 const { database, firebaseClient } = require("../services/firebase");
 const userProfile = require("./mapping/userProfile");
-const movie = require('./mapping/movie');
+const movie = require("./mapping/movie");
 
 const baseDBURL =
   process.env.NODE_ENV === "production"
     ? process.env.FB_PROD_DB_URL
     : process.env.FB_DEV_DB_URL;
+
+const firebaseDB = firebaseClient.database();
 
 const resolvers = {
   Query: {
@@ -17,7 +19,7 @@ const resolvers = {
     user: async (_, { uid }) => {
       const data = await fetch(`${baseDBURL}/users/${uid}.json`);
       const dataJson = await data.json();
-      return dataJson;
+      return userProfile(dataJson);
     },
 
     users: async () => {
@@ -53,7 +55,6 @@ const resolvers = {
 
   Mutation: {
     createUser: async (parent, data, { models }) => {
-      // TODO : if email exists, then don't create 
       if (!data) {
         return "No data provided";
       }
@@ -63,12 +64,17 @@ const resolvers = {
         uid = uuidv4();
         data.uid = uid
       }
-
-      // TODO: return data
-      firebaseClient
-        .database()
-        .ref("users/" + data.uid)
-        .set(data);
+      
+      let writeResult
+      await firebaseDB.ref("users/" + uid)
+        .set(data, (error) => {
+          if (error) {
+            writeResult = error;
+          } else {
+            writeResult = data;
+          }
+        });
+        return data;
     },
 
     addMovie: async (parent, data, { models }) => {
@@ -76,17 +82,24 @@ const resolvers = {
         return "No data provided";
       }
 
-      let mId = data.mId;
+      const id = uuidv4();
+      data.id = id;
 
-      if (_isEmpty(mId)) {
-        mId = uuidv4();
-        data.mId = mId;
-      }
-
-      firebaseClient
-        .database()
-        .ref("movies/" + mId)
-        .set(JSON.parse(JSON.stringify(data)));
+      let writeResult
+      await firebaseDB.ref("movies/" + id)
+      .set(JSON.parse(JSON.stringify(data)), (error) => {
+        if (error) {
+          writeResult = error;
+        } else {
+          writeResult = data;
+        }
+      });
+      
+      const editorId = data.editorId;
+      let editorListRef = firebaseDB.ref('users/' + editorId + '/editedMovies');
+      editorListRef.push(id);
+      
+      return data;
     }
   },
 };
