@@ -175,6 +175,7 @@ const typeDefs = `
 
   type Mutation {
     createUser(
+      uid: ID,
       displayName: String!,
       email: String!,
       photoURL: String,

@@ -58,9 +58,7 @@ const resolvers = {
         return "No data provided";
       }
 
-
       let uid = data.uid;
-
       if (_isEmpty(uid)) {
         uid = uuidv4();
         data.uid = uid
@@ -90,7 +88,6 @@ const resolvers = {
         .ref("movies/" + mId)
         .set(JSON.parse(JSON.stringify(data)));
     }
-
   },
 };
 
