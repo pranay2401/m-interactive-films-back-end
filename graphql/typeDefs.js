@@ -58,9 +58,8 @@ const typeDefs = `
   }
 
   input InputHotspot {
-    id: ID,
-    name: String,
-    startPoint: Int
+    name: String!,
+    startPoint: Int!
   }
 
   type Overlay {
@@ -131,20 +130,9 @@ const typeDefs = `
     templateRightLabel: String,
   }
 
-  input InputPlayerOverlay {
-    overlayId: ID,
-    overlayTemplate: String,
-    overlayName: String,
-    jumpPoint: Int,
-    templateTitle: String,
-    templateLeftAction: Int,
-    templateRightAction: Int,
-    templateLeftLabel: String,
-    templateRightLabel: String,
-  }
-
   type Movie {
-    mId: ID,
+    id: ID,
+    mId: String,
     name: String,
     title: String,
     description: String,
@@ -152,7 +140,7 @@ const typeDefs = `
     thumbnails: Thumbnails,
     genre: String,
     rating: String,
-    createdOn: String,
+    createdAt: String,
     lastUpdated: String,
     publishedAt: String,
     isPublished: Boolean,
@@ -167,12 +155,30 @@ const typeDefs = `
     interactiveData: [PlayerOverlay]
   }
 
+  input InputMovie {
+    mId: ID,
+    title: String,
+    url: String!,
+    name: String,
+    description: String,
+    thumbnails: InputThumbnails,
+    genre: String,
+    rating: String,
+    isPublished: Boolean,
+    isFeatured: Boolean,
+    comments: [InputComment],
+    hotspots: [InputHotspot],
+    overlays: [InputOverlay],
+    triggers: [InputTrigger],
+    templateActions: [InputTemplateAction]
+  }
+
   type Query {
-    hello(name: String): String!,
     user(uid: ID!): User,
     users:[User],
     movies:[Movie],
-    movie(mId: ID!): Movie
+    movie(id: ID!): Movie,
+    hotspot(id: ID!, movieId: ID!): Hotspot
   }
 
   type Mutation {
@@ -200,8 +206,29 @@ const typeDefs = `
       hotspots: [InputHotspot],
       overlays: [InputOverlay],
       triggers: [InputTrigger],
-      templateActions: [InputTemplateAction],
-    ): Movie
+      templateActions: [InputTemplateAction]
+    ): Movie,
+
+    updateMovie(
+      id: String!,
+      data: InputMovie!
+    ): Movie,
+
+    addHotspot(
+      data: InputHotspot!,
+      movieId: ID!
+    ): Hotspot,
+
+    editHotspot(
+      id: ID!, 
+      data: InputHotspot!,
+      movieId: ID!
+    ): Hotspot,
+
+    deleteHotspot(
+      id: ID!,
+      movieId: ID!
+    ): String
   }
 `;
 

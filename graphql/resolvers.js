@@ -14,8 +14,6 @@ const firebaseDB = firebaseClient.database();
 
 const resolvers = {
   Query: {
-    hello: (_, { name }) => `Hello ${name || "World"}`,
-
     user: async (_, { uid }) => {
       const data = await fetch(`${baseDBURL}/users/${uid}.json`);
       const dataJson = await data.json();
@@ -46,11 +44,26 @@ const resolvers = {
       return mapsKeys;
     },
 
-    movie: async (_, { mId }) => {
-      const data = await fetch(`${baseDBURL}/movies/${mId}.json`);
+    movie: async (_, { id }) => {
+      const data = await fetch(`${baseDBURL}/movies/${id}.json`);
       const dataJson = await data.json();
-      return dataJson;
-    }
+      return movie(dataJson);
+    },
+
+    hotspot: async (_, { movieId, id }) => {
+      const ref = firebaseDB.ref("movies").child(`/${movieId}/hotspots/${id}`);
+
+      let res;
+      await ref.once("value", snapshot => {
+        if (snapshot.exists()){
+          const hotspotData = snapshot.val();
+          res = hotspotData;
+        } else {
+           // TODO : Sentry log - hotspot does not exist
+        }
+      });
+      return res;
+    },
   },
 
   Mutation: {
@@ -65,16 +78,16 @@ const resolvers = {
         data.uid = uid
       }
       
-      let writeResult
+      let res
       await firebaseDB.ref("users/" + uid)
         .set(data, (error) => {
           if (error) {
-            writeResult = error;
+            
           } else {
-            writeResult = data;
+            res = data;
           }
         });
-        return data;
+      return res;
     },
 
     addMovie: async (parent, data, { models }) => {
@@ -85,13 +98,14 @@ const resolvers = {
       const id = uuidv4();
       data.id = id;
 
-      let writeResult
+      data.createdAt = new Date();
+
       await firebaseDB.ref("movies/" + id)
       .set(JSON.parse(JSON.stringify(data)), (error) => {
         if (error) {
-          writeResult = error;
+          return error;
         } else {
-          writeResult = data;
+          res = data;
         }
       });
       
@@ -99,8 +113,106 @@ const resolvers = {
       let editorListRef = firebaseDB.ref('users/' + editorId + '/editedMovies');
       editorListRef.push(id);
       
-      return data;
-    }
+      return res;
+    },
+
+    updateMovie: async (parent, { id, data }, { models }) => {
+      if (!id || !data) {
+        return "Invalid request";
+      }
+
+      const ref = firebaseDB.ref("movies").child(`/${id}`);
+
+      let res;
+      await ref.once("value", snapshot => {
+        if (snapshot.exists()){
+          data.id = id;
+          ref.set(JSON.parse(JSON.stringify(data)), (error) => {
+            if (error) {
+              return error;
+            }
+          });
+          res = data;
+        } else {
+          // TODO : Sentry log - movie does not exist
+        }
+      });
+      return res;
+    },
+
+    addHotspot: async (parent, { movieId, data }, { models }) => {
+      if (!movieId || !data) {
+        return "Invalid request";
+      }
+
+      const ref = firebaseDB.ref("movies").child(`/${movieId}`);
+
+      let res;
+      await ref.once("value", snapshot => {
+        if (snapshot.exists()){
+          const id = uuidv4();
+          data.id = id;
+      
+          ref.child("/hotspots/" + id)
+            .set(JSON.parse(JSON.stringify(data)), (error) => {
+            if (error) {
+              return error;
+            }
+          });
+          res = data;
+        } else {
+          // TODO : Sentry log - movie does not exist
+        }
+      });
+      return res;
+    },
+
+    editHotspot: async (parent, { id, movieId, data }, { models }) => {
+      if (!movieId || !id || !data) {
+        return "Invalid request";
+      }
+
+      const ref = firebaseDB.ref("movies").child(`/${movieId}/hotspots/${id}`);
+
+      let res;
+      await ref.once("value", snapshot => {
+        if (snapshot.exists()){
+          data.id = id;
+          ref.set(JSON.parse(JSON.stringify(data)), (error) => {
+            if (error) {
+              return error;
+            }
+          });
+          res = data;
+        } else {
+          // TODO : Sentry log - hotspot does not exist
+        }
+      });
+      return res;
+    },
+
+    deleteHotspot: async (parent, { id, movieId }, { models }) => {
+      if (!movieId || !id) {
+        return "Invalid request";
+      }
+
+      const ref = firebaseDB.ref("movies").child(`/${movieId}/hotspots/${id}`);
+
+      let res;
+      await ref.once("value", snapshot => {
+        if (snapshot.exists()){
+          ref.remove((error) => {
+            if (error) {
+              return error;
+            }
+          });
+          res = id;
+        } else {
+          // TODO : Sentry log - hotspot does not exist
+        }
+      });
+      return res;
+    },
   },
 };
 
