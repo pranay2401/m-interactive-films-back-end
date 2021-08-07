@@ -10,6 +10,8 @@ const baseDBURL =
     ? process.env.FB_PROD_DB_URL
     : process.env.FB_DEV_DB_URL;
 
+const firebaseDB = firebaseClient.database();
+
 const resolvers = {
   Query: {
     hello: (_, { name }) => `Hello ${name || "World"}`,
@@ -53,7 +55,6 @@ const resolvers = {
 
   Mutation: {
     createUser: async (parent, data, { models }) => {
-      // TODO : if email exists, then don't create 
       if (!data) {
         return "No data provided";
       }
@@ -64,11 +65,16 @@ const resolvers = {
         data.uid = uid
       }
 
-      // TODO: return data
-      firebaseClient
-        .database()
-        .ref("users/" + data.uid)
-        .set(data);
+      let writeResult
+      await firebaseDB.ref("users/" + uid)
+        .set(data, (error) => {
+          if (error) {
+            writeResult = error;
+          } else {
+            writeResult = data;
+          }
+        });
+        return data;
     },
 
     addMovie: async (parent, data, { models }) => {
@@ -83,10 +89,15 @@ const resolvers = {
         data.mId = mId;
       }
 
-      firebaseClient
-        .database()
-        .ref("movies/" + mId)
-        .set(JSON.parse(JSON.stringify(data)));
+      await firebaseDB.ref("movies/" + mId)
+         .set(JSON.parse(JSON.stringify(data)), (error) => {
+          if (error) {
+            writeResult = error;
+          } else {
+            writeResult = data;
+          }
+        });
+        return data;
     }
   },
 };
