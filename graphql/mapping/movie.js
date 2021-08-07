@@ -1,5 +1,6 @@
 function movie(data) {
     return {
+        id: data.id,
         mId: data.mId,
         name: data.name,
         title: data.title,

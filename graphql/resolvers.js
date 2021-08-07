@@ -19,7 +19,7 @@ const resolvers = {
     user: async (_, { uid }) => {
       const data = await fetch(`${baseDBURL}/users/${uid}.json`);
       const dataJson = await data.json();
-      return dataJson;
+      return userProfile(dataJson);
     },
 
     users: async () => {
@@ -64,7 +64,7 @@ const resolvers = {
         uid = uuidv4();
         data.uid = uid
       }
-
+      
       let writeResult
       await firebaseDB.ref("users/" + uid)
         .set(data, (error) => {
@@ -82,23 +82,24 @@ const resolvers = {
         return "No data provided";
       }
 
-      let mId = data.mId;
-
-      if (_isEmpty(mId)) {
-        mId = uuidv4();
-        data.mId = mId;
-      }
+      const id = uuidv4();
+      data.id = id;
 
       let writeResult
-      await firebaseDB.ref("movies/" + mId)
-         .set(JSON.parse(JSON.stringify(data)), (error) => {
-          if (error) {
-            writeResult = error;
-          } else {
-            writeResult = data;
-          }
-        });
-        return data;
+      await firebaseDB.ref("movies/" + id)
+      .set(JSON.parse(JSON.stringify(data)), (error) => {
+        if (error) {
+          writeResult = error;
+        } else {
+          writeResult = data;
+        }
+      });
+      
+      const editorId = data.editorId;
+      let editorListRef = firebaseDB.ref('users/' + editorId + '/editedMovies');
+      editorListRef.push(id);
+      
+      return data;
     }
   },
 };

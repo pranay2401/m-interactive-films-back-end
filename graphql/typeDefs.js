@@ -4,7 +4,9 @@ const typeDefs = `
     displayName: String
     email: String
     photoURL: String
-    emailVerified: Boolean
+    emailVerified: Boolean,
+    watchlistedMovies: [String],
+    editedMovies: [String]
   }
 
   type Thumbnail {
