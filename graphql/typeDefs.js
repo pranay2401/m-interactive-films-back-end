@@ -143,6 +143,7 @@ const typeDefs = `
 
   type Movie {
     mId: ID,
+    guid: ID!,
     name: String,
     title: String,
     description: String,
@@ -184,6 +185,7 @@ const typeDefs = `
     
     addMovie(
       mId: ID!,
+      guid: ID!,
       name: String,
       title: String!,
       description: String,

@@ -1,9 +1,9 @@
-const { v4: uuidv4 } = require('uuid');
-const _isEmpty = require('lodash/isEmpty');
+const { v4: uuidv4 } = require("uuid");
+const _isEmpty = require("lodash/isEmpty");
 const fetch = require("node-fetch");
 const { database, firebaseClient } = require("../services/firebase");
 const userProfile = require("./mapping/userProfile");
-const movie = require('./mapping/movie');
+const movie = require("./mapping/movie");
 
 const baseDBURL =
   process.env.NODE_ENV === "production"
@@ -48,12 +48,12 @@ const resolvers = {
       const data = await fetch(`${baseDBURL}/movies/${mId}.json`);
       const dataJson = await data.json();
       return dataJson;
-    }
+    },
   },
 
   Mutation: {
     createUser: async (parent, data, { models }) => {
-      // TODO : if email exists, then don't create 
+      // TODO : if email exists, then don't create
       if (!data) {
         return "No data provided";
       }
@@ -61,7 +61,7 @@ const resolvers = {
       let uid = data.uid;
       if (_isEmpty(uid)) {
         uid = uuidv4();
-        data.uid = uid
+        data.uid = uid;
       }
 
       // TODO: return data
@@ -75,7 +75,7 @@ const resolvers = {
       if (!data) {
         return "No data provided";
       }
-
+      console.log(data);
       let mId = data.mId;
 
       if (_isEmpty(mId)) {
@@ -87,7 +87,7 @@ const resolvers = {
         .database()
         .ref("movies/" + mId)
         .set(JSON.parse(JSON.stringify(data)));
-    }
+    },
   },
 };
 
