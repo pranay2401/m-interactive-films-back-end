@@ -175,6 +175,7 @@ const typeDefs = `
 
   type Mutation {
     createUser(
+      uid: ID!,
       displayName: String!,
       email: String!,
       photoURL: String,
@@ -182,10 +183,10 @@ const typeDefs = `
       ): User
     
     addMovie(
-      mId: ID,
-      name: String!,
+      mId: ID!,
+      name: String,
       title: String!,
-      description: String!,
+      description: String,
       url: String!,
       thumbnails: InputThumbnails,
       genre: String,
