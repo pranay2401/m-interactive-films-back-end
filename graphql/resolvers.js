@@ -1,9 +1,9 @@
-const { v4: uuidv4 } = require('uuid');
-const _isEmpty = require('lodash/isEmpty');
+const { v4: uuidv4 } = require("uuid");
+const _isEmpty = require("lodash/isEmpty");
 const fetch = require("node-fetch");
 const { database, firebaseClient } = require("../services/firebase");
 const userProfile = require("./mapping/userProfile");
-const movie = require('./mapping/movie');
+const movie = require("./mapping/movie");
 
 const baseDBURL =
   process.env.NODE_ENV === "production"
