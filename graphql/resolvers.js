@@ -44,55 +44,10 @@ const resolvers = {
       return mapsKeys;
     },
 
-    movie: async (_, {id} ) => {
-
-      const ref =  firebaseDB
-                    .ref()
-                    .child('movies');
-      let res;
-      await ref
-            .orderByChild("id")
-            .equalTo(id)
-            .once('value', (snapshot) => {
-                if (snapshot.empty) {
-                  console.log('No matching movies.');
-                  return;
-                }
-                res = snapshot.val();
-              });
-      return res && movie(Object.values(res)[0]);
-    },
-
-    filterMovies: async (_, { filter }) => {
-
-      const key = filter.key;
-      let value
-      if (key === "isPublished" || key === "isFeatured" ) {
-        value = JSON.parse(filter.value);
-      } else {
-        value = filter.value
-      }
-
-      const ref =  firebaseDB
-                    .ref()
-                    .child('movies');
-      let res;
-      if (key) {
-        await ref
-              .orderByChild(key)
-              .equalTo(value)
-              .once('value', (snapshot) => {
-                  if (snapshot.empty) {
-                    console.log('No matching movies.');
-                    return;
-                  }
-                  res = snapshot.val();
-                });
-      }
-      return res && Object.values(res).reduce((filterResult, movieData) => {
-        filterResult.push(movie(movieData));
-        return filterResult;
-      }, []);
+    movie: async (_, { id }) => {
+      const data = await fetch(`${baseDBURL}/movies/${id}.json`);
+      const dataJson = await data.json();
+      return movie(dataJson);
     },
 
     hotspot: async (_, { movieId, id }) => {
@@ -143,10 +98,6 @@ const resolvers = {
 
       data.createdAt = new Date();
 
-      // By default, keeping published and featured flag as false
-      data.isPublished = false;
-      data.isFeatured = false;
-
       await firebaseDB
         .ref("movies/" + id)
         .set(JSON.parse(JSON.stringify(data)), (error) => {
@@ -156,6 +107,10 @@ const resolvers = {
             res = data;
           }
         });
+
+      const editorId = data.editorId;
+      let editorListRef = firebaseDB.ref("users/" + editorId + "/editedMovies");
+      editorListRef.push(id);
 
       return res;
     },
@@ -189,47 +144,27 @@ const resolvers = {
         return "Invalid request";
       }
 
-      if (_isEmpty(data.id)) {
-        const ref = firebaseDB.ref("movies").child(`/${movieId}`);
+      const ref = firebaseDB.ref("movies").child(`/${movieId}`);
 
-        let res;
-        await ref.once("value", (snapshot) => {
-          if (snapshot.exists()) {
-            const id = uuidv4();
-            data.id = id;
+      let res;
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          const id = uuidv4();
+          data.id = id;
 
-            ref
-              .child("/hotspots/" + id)
-              .set(JSON.parse(JSON.stringify(data)), (error) => {
-                if (error) {
-                  return error;
-                }
-              });
-            res = data;
-          } else {
-            // TODO : Sentry log - movie does not exist
-          }
-        });
-        return res;
-      } else {
-        const refEdit = firebaseDB
-          .ref("movies")
-          .child(`/${movieId}/hotspots/${data.id}`);
-        let resEdit;
-        await refEdit.once("value", (snapshot) => {
-          if (snapshot.exists()) {
-            refEdit.set(JSON.parse(JSON.stringify(data)), (error) => {
+          ref
+            .child("/hotspots/" + id)
+            .set(JSON.parse(JSON.stringify(data)), (error) => {
               if (error) {
                 return error;
               }
             });
-            resEdit = data;
-          } else {
-            // TODO : Sentry log - hotspot does not exist
-          }
-        });
-        return resEdit;
-      }
+          res = data;
+        } else {
+          // TODO : Sentry log - movie does not exist
+        }
+      });
+      return res;
     },
 
     editHotspot: async (parent, { id, movieId, data }, { models }) => {
