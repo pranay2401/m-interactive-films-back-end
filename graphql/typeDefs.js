@@ -1,3 +1,4 @@
+// FIX ME: @pranay2401 Update array of hotspots, overlays and triggers in movie to be JSON object with dynamic keys
 const typeDefs = `
   type User {
     uid: ID
@@ -5,8 +6,7 @@ const typeDefs = `
     email: String
     photoURL: String
     emailVerified: Boolean,
-    watchlistedMovies: [String],
-    editedMovies: [String]
+    watchlistedMovies: [String]
   }
 
   type Thumbnail {
@@ -142,6 +142,11 @@ const typeDefs = `
     templateLeftLabel: String,
     templateRightLabel: String,
   }
+
+  input MovieFilterParams {
+    key: String
+    value: String
+  }
   
   type Movie {
     id: ID,
@@ -197,6 +202,9 @@ const typeDefs = `
     users:[User],
     movies:[Movie],
     movie(id: ID!): Movie,
+    filterMovies(
+      filter: MovieFilterParams
+    ): [Movie],
     hotspot(id: ID!, movieId: ID!): Hotspot
   }
 

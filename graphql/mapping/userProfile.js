@@ -5,7 +5,6 @@ function userProfile(data) {
     email: data.email,
     photoURL: data.photoURL,
     emailVerified: data.emailVerified,
-    editedMovies: data.editedMovies && Object.values(data.editedMovies),
     watchlistedMovies: data.watchlistedMovies && Object.values(data.watchlistedMovies)
   };
 }
