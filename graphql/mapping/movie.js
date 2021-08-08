@@ -17,7 +17,7 @@ function movie(data) {
 		watchlistedUsers: data.watchlistedUsers,
         comments: data.comments,
         hotspots: data.hotspots && Object.values(data.hotspots),
-        overlays: data.overlays,
+        overlays: data.overlays && Object.values(data.overlays),
         templateActions: data.templateActions,
         triggers: data.triggers,
         interactiveData: data.interactiveData
