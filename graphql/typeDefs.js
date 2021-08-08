@@ -58,6 +58,7 @@ const typeDefs = `
   }
 
   input InputHotspot {
+    id: ID,
     name: String!,
     startPoint: Int!
   }
@@ -130,6 +131,18 @@ const typeDefs = `
     templateRightLabel: String,
   }
 
+  input InputPlayerOverlay {
+    overlayId: ID,
+    overlayTemplate: String,
+    overlayName: String,
+    jumpPoint: Int,
+    templateTitle: String,
+    templateLeftAction: Int,
+    templateRightAction: Int,
+    templateLeftLabel: String,
+    templateRightLabel: String,
+  }
+  
   type Movie {
     id: ID,
     mId: String,
@@ -156,6 +169,7 @@ const typeDefs = `
   }
 
   input InputMovie {
+    id:ID,
     mId: ID,
     title: String,
     url: String!,
@@ -165,12 +179,17 @@ const typeDefs = `
     genre: String,
     rating: String,
     isPublished: Boolean,
+    createdAt: String,
     isFeatured: Boolean,
+    editorId: ID,
+    publishedAt: String,
     comments: [InputComment],
+    watchlistedUsers: [String],
     hotspots: [InputHotspot],
     overlays: [InputOverlay],
     triggers: [InputTrigger],
-    templateActions: [InputTemplateAction]
+    templateActions: [InputTemplateAction],
+    interactiveData: [InputPlayerOverlay],
   }
 
   type Query {
