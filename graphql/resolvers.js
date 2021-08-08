@@ -54,12 +54,12 @@ const resolvers = {
       const ref = firebaseDB.ref("movies").child(`/${movieId}/hotspots/${id}`);
 
       let res;
-      await ref.once("value", snapshot => {
-        if (snapshot.exists()){
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
           const hotspotData = snapshot.val();
           res = hotspotData;
         } else {
-           // TODO : Sentry log - hotspot does not exist
+          // TODO : Sentry log - hotspot does not exist
         }
       });
       return res;
@@ -75,18 +75,16 @@ const resolvers = {
       let uid = data.uid;
       if (_isEmpty(uid)) {
         uid = uuidv4();
-        data.uid = uid
+        data.uid = uid;
       }
-      
-      let res
-      await firebaseDB.ref("users/" + uid)
-        .set(data, (error) => {
-          if (error) {
-            
-          } else {
-            res = data;
-          }
-        });
+
+      let res;
+      await firebaseDB.ref("users/" + uid).set(data, (error) => {
+        if (error) {
+        } else {
+          res = data;
+        }
+      });
       return res;
     },
 
@@ -100,19 +98,20 @@ const resolvers = {
 
       data.createdAt = new Date();
 
-      await firebaseDB.ref("movies/" + id)
-      .set(JSON.parse(JSON.stringify(data)), (error) => {
-        if (error) {
-          return error;
-        } else {
-          res = data;
-        }
-      });
-      
+      await firebaseDB
+        .ref("movies/" + id)
+        .set(JSON.parse(JSON.stringify(data)), (error) => {
+          if (error) {
+            return error;
+          } else {
+            res = data;
+          }
+        });
+
       const editorId = data.editorId;
-      let editorListRef = firebaseDB.ref('users/' + editorId + '/editedMovies');
+      let editorListRef = firebaseDB.ref("users/" + editorId + "/editedMovies");
       editorListRef.push(id);
-      
+
       return res;
     },
 
@@ -124,8 +123,8 @@ const resolvers = {
       const ref = firebaseDB.ref("movies").child(`/${id}`);
 
       let res;
-      await ref.once("value", snapshot => {
-        if (snapshot.exists()){
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
           data.id = id;
           ref.set(JSON.parse(JSON.stringify(data)), (error) => {
             if (error) {
@@ -148,17 +147,18 @@ const resolvers = {
       const ref = firebaseDB.ref("movies").child(`/${movieId}`);
 
       let res;
-      await ref.once("value", snapshot => {
-        if (snapshot.exists()){
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
           const id = uuidv4();
           data.id = id;
-      
-          ref.child("/hotspots/" + id)
+
+          ref
+            .child("/hotspots/" + id)
             .set(JSON.parse(JSON.stringify(data)), (error) => {
-            if (error) {
-              return error;
-            }
-          });
+              if (error) {
+                return error;
+              }
+            });
           res = data;
         } else {
           // TODO : Sentry log - movie does not exist
@@ -175,8 +175,8 @@ const resolvers = {
       const ref = firebaseDB.ref("movies").child(`/${movieId}/hotspots/${id}`);
 
       let res;
-      await ref.once("value", snapshot => {
-        if (snapshot.exists()){
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
           data.id = id;
           ref.set(JSON.parse(JSON.stringify(data)), (error) => {
             if (error) {
@@ -199,8 +199,8 @@ const resolvers = {
       const ref = firebaseDB.ref("movies").child(`/${movieId}/hotspots/${id}`);
 
       let res;
-      await ref.once("value", snapshot => {
-        if (snapshot.exists()){
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
           ref.remove((error) => {
             if (error) {
               return error;
