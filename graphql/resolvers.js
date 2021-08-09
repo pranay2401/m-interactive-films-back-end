@@ -122,6 +122,20 @@ const resolvers = {
       });
       return res;
     },
+
+    trigger: async (_, { movieId, id }) => {
+      const ref = firebaseDB.ref("movies").child(`/${movieId}/triggers/${id}`);
+
+      let res;
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          res = snapshot.val();
+        } else {
+          // TODO : Sentry log - hotspot does not exist
+        }
+      });
+      return res;
+    },
   },
 
   Mutation: {
@@ -322,6 +336,77 @@ const resolvers = {
       }
 
       const ref = firebaseDB.ref("movies").child(`/${movieId}/overlays/${id}`);
+
+      let res;
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          ref.remove((error) => {
+            if (error) {
+              return error;
+            }
+          });
+          res = id;
+        } else {
+          // TODO : Sentry log - hotspot does not exist
+        }
+      });
+      return res;
+    },
+
+    addTrigger: async (parent, { movieId, data }, { models }) => {
+      if (!movieId || !data) {
+        return "Invalid request";
+      }
+
+      if (_isEmpty(data.id)) {
+        const ref = firebaseDB.ref("movies").child(`/${movieId}`);
+
+        let res;
+        await ref.once("value", (snapshot) => {
+          if (snapshot.exists()) {
+            const id = uuidv4();
+            data.id = id;
+
+            ref
+              .child("/triggers/" + id)
+              .set(JSON.parse(JSON.stringify(data)), (error) => {
+                if (error) {
+                  return error;
+                }
+              });
+            res = data;
+          } else {
+            // TODO : Sentry log - movie does not exist
+          }
+        });
+        return res;
+      } else {
+        const refEdit = firebaseDB
+          .ref("movies")
+          .child(`/${movieId}/triggers/${data.id}`);
+        let resEdit;
+        await refEdit.once("value", (snapshot) => {
+          if (snapshot.exists()) {
+            refEdit.set(JSON.parse(JSON.stringify(data)), (error) => {
+              if (error) {
+                return error;
+              }
+            });
+            resEdit = data;
+          } else {
+            // TODO : Sentry log - hotspot does not exist
+          }
+        });
+        return resEdit;
+      }
+    },
+
+    deleteTrigger: async (parent, { id, movieId }, { models }) => {
+      if (!movieId || !id) {
+        return "Invalid request";
+      }
+
+      const ref = firebaseDB.ref("movies").child(`/${movieId}/triggers/${id}`);
 
       let res;
       await ref.once("value", (snapshot) => {

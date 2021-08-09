@@ -186,6 +186,7 @@ const typeDefs = `
     ): [Movie],
     hotspot(id: ID!, movieId: ID!): Hotspot
     overlay(id: ID!, movieId: ID!): Overlay
+    trigger(id: ID!, movieId: ID!): Trigger
   }
 
   type Mutation {
@@ -236,6 +237,16 @@ const typeDefs = `
     ): Overlay,
 
     deleteOverlay(
+      id: ID!,
+      movieId: ID!
+    ): String,
+
+    addTrigger(
+      data: InputTrigger!,
+      movieId: ID!
+    ): Trigger,
+
+    deleteTrigger(
       id: ID!,
       movieId: ID!
     ): String
