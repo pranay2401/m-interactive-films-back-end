@@ -18,7 +18,6 @@ function movie(data) {
         comments: data.comments,
         hotspots: data.hotspots,
         overlays: data.overlays,
-        templateActions: data.templateActions,
         triggers: data.triggers,
         interactiveData: data.interactiveData
     };
