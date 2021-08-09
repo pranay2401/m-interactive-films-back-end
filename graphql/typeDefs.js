@@ -1,5 +1,8 @@
-// FIX ME: @pranay2401 Update array of hotspots, overlays and triggers in movie to be JSON object with dynamic keys
+const { GraphQLJSONObject } = require("graphql-type-json");
+
 const typeDefs = `
+  scalar GraphQLJSONObject
+
   type User {
     uid: ID
     displayName: String
@@ -67,28 +70,18 @@ const typeDefs = `
     id: ID,
     name: String,
     jumpPoint: Int,
-    templateActionId: String
+    templateTitle: String,
+    leftActionHotspot: ID,
+    rightActionHotspot: ID
   }
 
   input InputOverlay {
     id: ID,
     name: String!,
     jumpPoint: Int!,
-    templateActionId: String!
-  }
-
-  type TemplateAction {
-    id: ID,
-    title: String,
-    leftHotspotId: String,
-    rightHotspotId: String,
-  }
-
-  input InputTemplateAction {
-    id: ID,
-    title: String,
-    leftHotspotId: String,
-    rightHotspotId: String,
+    templateTitle: String!,
+    leftActionHotspot: ID!,
+    rightActionHotspot: ID!
   }
 
   type Trigger {
@@ -101,22 +94,10 @@ const typeDefs = `
 
   input InputTrigger {
     id: ID,
-    type: String,
-    name: String,
-    startPoint: Int,
-    skipTo: Int
-  }
-
-  type Template {
-    id: ID,
-    title: String,
-    noOfHotspots: Int
-  }
-
-  input InputTemplate {
-    id: ID,
-    title: String,
-    noOfHotspots: Int
+    type: String!,
+    name: String!,
+    startPoint: Int!,
+    skipTo: Int!
   }
 
   type PlayerOverlay {
@@ -166,11 +147,10 @@ const typeDefs = `
     isFeatured: Boolean,
     comments: [Comment],
     watchlistedUsers: [String],
-    hotspots: [Hotspot],
-    overlays: [Overlay],
-    triggers: [Trigger],
-    templateActions: [TemplateAction],
-    interactiveData: [PlayerOverlay]
+    hotspots: GraphQLJSONObject,
+    overlays: GraphQLJSONObject,
+    triggers: GraphQLJSONObject,
+    interactiveData: GraphQLJSONObject
   }
 
   input InputMovie {
@@ -190,11 +170,10 @@ const typeDefs = `
     publishedAt: String,
     comments: [InputComment],
     watchlistedUsers: [String],
-    hotspots: [InputHotspot],
-    overlays: [InputOverlay],
-    triggers: [InputTrigger],
-    templateActions: [InputTemplateAction],
-    interactiveData: [InputPlayerOverlay],
+    hotspots: GraphQLJSONObject,
+    overlays: GraphQLJSONObject,
+    triggers: GraphQLJSONObject,
+    interactiveData: GraphQLJSONObject,
   }
 
   type Query {
@@ -231,10 +210,9 @@ const typeDefs = `
       isPublished: Boolean,
       isFeatured: Boolean,
       comments: [InputComment],
-      hotspots: [InputHotspot],
-      overlays: [InputOverlay],
-      triggers: [InputTrigger],
-      templateActions: [InputTemplateAction]
+      hotspots: GraphQLJSONObject,
+      overlays: GraphQLJSONObject,
+      triggers: GraphQLJSONObject,
     ): Movie,
 
     updateMovie(
