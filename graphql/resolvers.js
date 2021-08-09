@@ -56,8 +56,21 @@ const resolvers = {
       let res;
       await ref.once("value", (snapshot) => {
         if (snapshot.exists()) {
-          const hotspotData = snapshot.val();
-          res = hotspotData;
+          res = snapshot.val();
+        } else {
+          // TODO : Sentry log - hotspot does not exist
+        }
+      });
+      return res;
+    },
+
+    overlay: async (_, { movieId, id }) => {
+      const ref = firebaseDB.ref("movies").child(`/${movieId}/overlays/${id}`);
+
+      let res;
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          res = snapshot.val();
         } else {
           // TODO : Sentry log - hotspot does not exist
         }
@@ -167,8 +180,8 @@ const resolvers = {
       return res;
     },
 
-    editHotspot: async (parent, { id, movieId, data }, { models }) => {
-      if (!movieId || !id || !data) {
+    deleteHotspot: async (parent, { id, movieId }, { models }) => {
+      if (!movieId || !id) {
         return "Invalid request";
       }
 
@@ -177,13 +190,12 @@ const resolvers = {
       let res;
       await ref.once("value", (snapshot) => {
         if (snapshot.exists()) {
-          data.id = id;
-          ref.set(JSON.parse(JSON.stringify(data)), (error) => {
+          ref.remove((error) => {
             if (error) {
               return error;
             }
           });
-          res = data;
+          res = id;
         } else {
           // TODO : Sentry log - hotspot does not exist
         }
@@ -191,12 +203,60 @@ const resolvers = {
       return res;
     },
 
-    deleteHotspot: async (parent, { id, movieId }, { models }) => {
+    addOverlay: async (parent, { movieId, data }, { models }) => {
+      if (!movieId || !data) {
+        return "Invalid request";
+      }
+
+      if (_isEmpty(data.id)) {
+        const ref = firebaseDB.ref("movies").child(`/${movieId}`);
+
+        let res;
+        await ref.once("value", (snapshot) => {
+          if (snapshot.exists()) {
+            const id = uuidv4();
+            data.id = id;
+
+            ref
+              .child("/overlays/" + id)
+              .set(JSON.parse(JSON.stringify(data)), (error) => {
+                if (error) {
+                  return error;
+                }
+              });
+            res = data;
+          } else {
+            // TODO : Sentry log - movie does not exist
+          }
+        });
+        return res;
+      } else {
+        const refEdit = firebaseDB
+          .ref("movies")
+          .child(`/${movieId}/overlays/${data.id}`);
+        let resEdit;
+        await refEdit.once("value", (snapshot) => {
+          if (snapshot.exists()) {
+            refEdit.set(JSON.parse(JSON.stringify(data)), (error) => {
+              if (error) {
+                return error;
+              }
+            });
+            resEdit = data;
+          } else {
+            // TODO : Sentry log - hotspot does not exist
+          }
+        });
+        return resEdit;
+      }
+    },
+
+    deleteOverlay: async (parent, { id, movieId }, { models }) => {
       if (!movieId || !id) {
         return "Invalid request";
       }
 
-      const ref = firebaseDB.ref("movies").child(`/${movieId}/hotspots/${id}`);
+      const ref = firebaseDB.ref("movies").child(`/${movieId}/overlays/${id}`);
 
       let res;
       await ref.once("value", (snapshot) => {

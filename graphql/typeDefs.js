@@ -72,9 +72,9 @@ const typeDefs = `
 
   input InputOverlay {
     id: ID,
-    name: String,
-    jumpPoint: Int,
-    templateActionId: String
+    name: String!,
+    jumpPoint: Int!,
+    templateActionId: String!
   }
 
   type TemplateAction {
@@ -198,6 +198,7 @@ const typeDefs = `
     movies:[Movie],
     movie(id: ID!): Movie,
     hotspot(id: ID!, movieId: ID!): Hotspot
+    overlay(id: ID!, movieId: ID!): Overlay
   }
 
   type Mutation {
@@ -238,13 +239,17 @@ const typeDefs = `
       movieId: ID!
     ): Hotspot,
 
-    editHotspot(
-      id: ID!, 
-      data: InputHotspot!,
-      movieId: ID!
-    ): Hotspot,
-
     deleteHotspot(
+      id: ID!,
+      movieId: ID!
+    ): String,
+
+    addOverlay(
+      data: InputOverlay!,
+      movieId: ID!
+    ): Overlay,
+
+    deleteOverlay(
       id: ID!,
       movieId: ID!
     ): String
