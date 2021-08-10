@@ -127,6 +127,8 @@ const typeDefs = `
   input MovieFilterParams {
     key: String
     value: String
+    searchText: String
+    pageSize: Int
   }
   
   type Movie {

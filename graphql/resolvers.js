@@ -4,6 +4,7 @@ const fetch = require("node-fetch");
 const { database, firebaseClient } = require("../services/firebase");
 const userProfile = require("./mapping/userProfile");
 const movie = require("./mapping/movie");
+const { DEFAULT_PAGE_LIMIT } = require("./constants");
 
 const baseDBURL =
   process.env.NODE_ENV === "production"
@@ -48,14 +49,14 @@ const resolvers = {
 
       const ref =  firebaseDB
                     .ref()
-                    .child('movies');
+                    .child("movies");
       let res;
       await ref
             .orderByChild("id")
             .equalTo(id)
-            .once('value', (snapshot) => {
+            .once("value", (snapshot) => {
                 if (snapshot.empty) {
-                  console.log('No matching movies.');
+                  console.log("No matching movies.");
                   return;
                 }
                 res = snapshot.val();
@@ -66,7 +67,10 @@ const resolvers = {
     filterMovies: async (_, { filter }) => {
 
       const key = filter.key;
-      let value
+      const searchText = filter.searchText;
+      const pageSize = filter.pageSize ? filter.pageSize : DEFAULT_PAGE_LIMIT;
+      
+      let value;
       if (key === "isPublished" || key === "isFeatured" ) {
         value = JSON.parse(filter.value);
       } else {
@@ -75,15 +79,30 @@ const resolvers = {
 
       const ref =  firebaseDB
                     .ref()
-                    .child('movies');
+                    .child("movies");
       let res;
-      if (key) {
+      if (!_isEmpty(searchText)) {
+        console.log("search" + searchText)
+        await ref
+              .orderByChild("title")
+              .startAt(searchText.toUpperCase())
+              .endAt(searchText.toLowerCase() + "\uf8ff")
+              .limitToFirst(pageSize)
+              .once("value", (snapshot) => {
+                  if (snapshot.empty) {
+                    console.log("No matching movies.");
+                    return;
+                  }
+                  res = snapshot.val();
+                });
+      } else if (key) {
         await ref
               .orderByChild(key)
               .equalTo(value)
-              .once('value', (snapshot) => {
+              .limitToFirst(pageSize)
+              .once("value", (snapshot) => {
                   if (snapshot.empty) {
-                    console.log('No matching movies.');
+                    console.log("No matching movies.");
                     return;
                   }
                   res = snapshot.val();
@@ -197,7 +216,9 @@ const resolvers = {
       let res;
       await ref.once("value", (snapshot) => {
         if (snapshot.exists()) {
-          data.id = id;
+          if (!snapshot.val().isPublished && data.isPublished) {
+            data.publishedAt = new Date();
+          }
           ref.set(JSON.parse(JSON.stringify(data)), (error) => {
             if (error) {
               return error;
