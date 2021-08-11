@@ -139,7 +139,7 @@ const typeDefs = `
     thumbnails: Thumbnails,
     genre: String,
     rating: String,
-    createdAt: String,
+    createdAt: Float,
     lastUpdated: String,
     publishedAt: String,
     isPublished: Boolean,
@@ -164,7 +164,7 @@ const typeDefs = `
     genre: String,
     rating: String,
     isPublished: Boolean,
-    createdAt: String,
+    createdAt: Float,
     isFeatured: Boolean,
     editorId: ID,
     publishedAt: String,
@@ -184,6 +184,8 @@ const typeDefs = `
     filterMovies(
       filter: MovieFilterParams
     ): [Movie],
+    getNewReleases(limit: Int): [Movie],
+    getFeatured(limit: Int): [Movie],
     hotspot(id: ID!, movieId: ID!): Hotspot
     overlay(id: ID!, movieId: ID!): Overlay
     trigger(id: ID!, movieId: ID!): Trigger
