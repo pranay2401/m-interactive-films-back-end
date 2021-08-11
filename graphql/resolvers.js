@@ -33,34 +33,74 @@ const resolvers = {
     },
 
     movies: async () => {
-      const data = await fetch(`${baseDBURL}/movies.json`);
-      const dataJson = await data.json();
-      const keys = Object.keys(dataJson);
-      const mapsKeys = keys.map(function (item) {
-        const movieData = dataJson[item];
-        const graphqlMovie = movie(movieData);
-        return graphqlMovie;
+      const ref = firebaseDB.ref("movies");
+
+      await ref.once("value", (snapshot) => {
+        if (snapshot.empty) {
+          console.log("No matching movies.");
+          return;
+        }
+        res = snapshot.val();
       });
-      return mapsKeys;
+      return res && Object.values(res);
     },
 
-    movie: async (_, {id} ) => {
+    getNewReleases: async (_, params) => {
+      let ref = firebaseDB.ref().child("movies").orderByChild("createdAt");
 
-      const ref =  firebaseDB
-                    .ref()
-                    .child('movies');
+      if (params && params.limit) {
+        ref = ref.limitToFirst(params.limit);
+      }
+
+      let res = [];
+      await ref.once("child_added", (snapshot) => {
+        if (snapshot.empty) {
+          console.log("No matching movies.");
+          return;
+        }
+        const movieData = snapshot.val();
+        movieData.isPublished &&
+          !movieData.isFeatured &&
+          res.push(snapshot.val());
+      });
+      return res;
+    },
+
+    getFeatured: async (_, params) => {
+      let ref = firebaseDB.ref().child("movies").orderByChild("createdAt");
+
+      if (params && params.limit) {
+        ref = ref.limitToFirst(params.limit);
+      }
+
+      let res = [];
+      await ref.once("child_added", (snapshot) => {
+        if (snapshot.empty) {
+          console.log("No matching movies.");
+          return;
+        }
+        const movieData = snapshot.val();
+        movieData.isPublished &&
+          movieData.isFeatured &&
+          res.push(snapshot.val());
+      });
+      return res;
+    },
+
+    movie: async (_, { id }) => {
+      const ref = firebaseDB.ref().child("movies");
       let res;
       await ref
-            .orderByChild("id")
-            .equalTo(id)
-            .once('value', (snapshot) => {
-                if (snapshot.empty) {
-                  console.log('No matching movies.');
-                  return;
-                }
-                res = snapshot.val();
-              });
-      return res && movie(Object.values(res)[0]);
+        .orderByChild("id")
+        .equalTo(id)
+        .once("value", (snapshot) => {
+          if (snapshot.empty) {
+            console.log("No matching movies.");
+            return;
+          }
+          res = snapshot.val();
+        });
+      return res && Object.values(res)[0];
     },
 
     filterMovies: async (_, { filter }) => {
@@ -168,7 +208,7 @@ const resolvers = {
       const id = uuidv4();
       data.id = id;
 
-      data.createdAt = new Date();
+      data.createdAt = new Date().getTime();
 
       // By default, keeping published and featured flag as false
       data.isPublished = false;
