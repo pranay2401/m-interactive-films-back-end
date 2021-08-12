@@ -3,7 +3,7 @@ const _isEmpty = require("lodash/isEmpty");
 const fetch = require("node-fetch");
 const { database, firebaseClient } = require("../services/firebase");
 const userProfile = require("./mapping/userProfile");
-const movie = require("./mapping/movie");
+const { filterMovies } = require("./utils/queryUtils");
 
 const baseDBURL =
   process.env.NODE_ENV === "production"
@@ -32,8 +32,12 @@ const resolvers = {
       return mapsKeys;
     },
 
-    movies: async () => {
-      const ref = firebaseDB.ref("movies");
+    movies: async (_, params) => {
+      let ref = firebaseDB.ref("movies");
+
+      if (params && !_isEmpty(params.userId)) {
+        ref = ref.orderByChild("editorId").equalTo(params.userId);
+      }
 
       await ref.once("value", (snapshot) => {
         if (snapshot.empty) {
@@ -42,7 +46,12 @@ const resolvers = {
         }
         res = snapshot.val();
       });
-      return res && Object.values(res);
+      return (
+        res &&
+        Object.values(res).filter((movieData) => {
+          return filterMovies(movieData, params);
+        })
+      );
     },
 
     getNewReleases: async (_, params) => {
@@ -101,38 +110,6 @@ const resolvers = {
           res = snapshot.val();
         });
       return res && Object.values(res)[0];
-    },
-
-    filterMovies: async (_, { filter }) => {
-
-      const key = filter.key;
-      let value
-      if (key === "isPublished" || key === "isFeatured" ) {
-        value = JSON.parse(filter.value);
-      } else {
-        value = filter.value
-      }
-
-      const ref =  firebaseDB
-                    .ref()
-                    .child('movies');
-      let res;
-      if (key) {
-        await ref
-              .orderByChild(key)
-              .equalTo(value)
-              .once('value', (snapshot) => {
-                  if (snapshot.empty) {
-                    console.log('No matching movies.');
-                    return;
-                  }
-                  res = snapshot.val();
-                });
-      }
-      return res && Object.values(res).reduce((filterResult, movieData) => {
-        filterResult.push(movie(movieData));
-        return filterResult;
-      }, []);
     },
 
     hotspot: async (_, { movieId, id }) => {

@@ -123,11 +123,6 @@ const typeDefs = `
     templateLeftLabel: String,
     templateRightLabel: String,
   }
-
-  input MovieFilterParams {
-    key: String
-    value: String
-  }
   
   type Movie {
     id: ID,
@@ -179,11 +174,13 @@ const typeDefs = `
   type Query {
     user(uid: ID!): User,
     users:[User],
-    movies:[Movie],
+    movies(
+      userId: String
+      queryText: String
+      isPublished: Boolean
+      isFeatured: Boolean
+    ):[Movie],
     movie(id: ID!): Movie,
-    filterMovies(
-      filter: MovieFilterParams
-    ): [Movie],
     getNewReleases(limit: Int): [Movie],
     getFeatured(limit: Int): [Movie],
     hotspot(id: ID!, movieId: ID!): Hotspot
