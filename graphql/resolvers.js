@@ -32,8 +32,18 @@ const resolvers = {
       return mapsKeys;
     },
 
-    movies: async () => {
-      const ref = firebaseDB.ref("movies");
+    movies: async (_, { userId, queryText }) => {
+      let ref = firebaseDB.ref("movies");
+
+      if (!_isEmpty(queryText)) {
+        // Only case sensitive search on title supported for now as it is not supported by DB
+        ref = ref
+          .orderByChild("title")
+          .startAt(queryText)
+          .endAt(queryText + "\uf8ff");
+      } else if (!_isEmpty(userId)) {
+        ref = ref.orderByChild("editorId").equalTo(userId);
+      }
 
       await ref.once("value", (snapshot) => {
         if (snapshot.empty) {

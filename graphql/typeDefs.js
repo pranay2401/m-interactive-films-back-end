@@ -179,7 +179,10 @@ const typeDefs = `
   type Query {
     user(uid: ID!): User,
     users:[User],
-    movies:[Movie],
+    movies(
+      userId: String
+      queryText: String
+    ):[Movie],
     movie(id: ID!): Movie,
     filterMovies(
       filter: MovieFilterParams
