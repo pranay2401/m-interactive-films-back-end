@@ -96,58 +96,6 @@ const resolvers = {
       return res;
     },
 
-    getWatchlistMovies: async (_, { userId }) => {
-      let ref = firebaseDB.ref().child("watchlist").child(`/${userId}/movies`);
-
-      let res = [];
-      let promises = [];
-      promises.push(
-        await ref.once("value", async (snapshot) => {
-          if (snapshot.empty) {
-            console.log("No matching movies.");
-            return;
-          }
-          const movieIds = snapshot.val();
-          const movieIdList = !_isEmpty(movieIds) && Object.values(movieIds);
-
-          // let movieRef =
-          // firebaseDB.ref("movies").child(`${childSnapshot.val()}`);
-          // await movieRef.once("value", (movieSnapshot) => {
-          //   if (movieSnapshot.empty) {
-          //     console.log(`Movie with id: ${movieId} not found`);
-          //     return;
-          //   }
-          //   movie = movieSnapshot.val();
-          //   movie.isPublished &&
-          //   movieIdList.includes(movie.id) &&
-          //   res.push(movie);
-          // });
-
-          // let movie;
-          promises.push(
-          res = await getMovies(movieIdList, firebaseDB)
-          );
-          // for (const movieId of movieIdList) {
-          //   res.push("hello");
-          //   let movieRef = firebaseDB.ref("movies").child(`${movieId}`);
-          //   await movieRef.once("value", (snapshot) => {
-          //     if (snapshot.empty) {
-          //       console.log(`Movie with id: ${movieId} not found`);
-          //       return;
-          //     }
-          //     movie = snapshot.val();
-          //     res.push(movie);
-          //   });
-          // }
-          console.log("Inside");
-          console.log(res);
-        })
-      );
-      await Promise.all(promises);
-      console.log(res);
-      return res;
-    },
-
     isWatchlisted: async (_, { userId, movieId }) => {
       const ref = firebaseDB.ref().child("watchlist").child(`${userId}/movies/${movieId}`);
       let res;
