@@ -183,6 +183,7 @@ const typeDefs = `
     movie(id: ID!): Movie,
     getNewReleases(limit: Int): [Movie],
     getFeatured(limit: Int): [Movie],
+    isWatchlisted(userId: ID!, movieId: ID!): Boolean
     getWatchlistMovies(userId: ID!): [Movie],
     hotspot(id: ID!, movieId: ID!): Hotspot,
     overlay(id: ID!, movieId: ID!): Overlay,

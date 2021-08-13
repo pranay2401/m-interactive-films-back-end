@@ -148,6 +148,19 @@ const resolvers = {
       return res;
     },
 
+    isWatchlisted: async (_, { userId, movieId }) => {
+      const ref = firebaseDB.ref().child("watchlist").child(`${userId}/movies/${movieId}`);
+      let res;
+      await ref.once("value", (snapshot) => {
+          if (snapshot.empty) {
+            console.log("No matching movies.");
+            return;
+          }
+          res = snapshot.val();
+        });
+      return !_isEmpty(res && Object.values(res)[0]);
+    },
+
     movie: async (_, { id }) => {
       const ref = firebaseDB.ref().child("movies");
       let res;
