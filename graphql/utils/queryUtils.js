@@ -24,24 +24,4 @@ const filterMovies = (movie, params) => {
   return result;
 };
 
-const getMovies = async (movieIds, firebaseDB) => {
-  let res = [];
-  let promsies = [];
-  for (const movieId of movieIds) {
-    let movieRef = firebaseDB.ref("movies").child(`${movieId}`);
-    promsies.push(
-      movieRef.once("value").then((snapshot) => {
-        if (snapshot.empty) {
-          console.log(`Movie with id: ${movieId} not found`);
-          return;
-        }
-        movie = snapshot.val();
-        res.push(movie);
-      })
-    );
-  }
-  await Promise.all(promsies);
-  return res;
-};
-
-module.exports = { filterMovies, getMovies };
+module.exports = { filterMovies };

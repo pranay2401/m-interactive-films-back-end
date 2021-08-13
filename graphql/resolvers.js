@@ -3,7 +3,7 @@ const _isEmpty = require("lodash/isEmpty");
 const fetch = require("node-fetch");
 const { database, firebaseClient } = require("../services/firebase");
 const userProfile = require("./mapping/userProfile");
-const { filterMovies, getMovies } = require("./utils/queryUtils");
+const { filterMovies } = require("./utils/queryUtils");
 
 const baseDBURL =
   process.env.NODE_ENV === "production"
@@ -97,15 +97,18 @@ const resolvers = {
     },
 
     isWatchlisted: async (_, { userId, movieId }) => {
-      const ref = firebaseDB.ref().child("watchlist").child(`${userId}/movies/${movieId}`);
+      const ref = firebaseDB
+        .ref()
+        .child("watchlist")
+        .child(`${userId}/movies/${movieId}`);
       let res;
       await ref.once("value", (snapshot) => {
-          if (snapshot.empty) {
-            console.log("No matching movies.");
-            return;
-          }
-          res = snapshot.val();
-        });
+        if (snapshot.empty) {
+          console.log("No matching movies.");
+          return;
+        }
+        res = snapshot.val();
+      });
       return !_isEmpty(res && Object.values(res)[0]);
     },
 
