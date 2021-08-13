@@ -21,7 +21,6 @@ const filterMovies = (movie, params) => {
     result = result && movie.isFeatured === params.isFeatured;
   }
 
-
   return result;
 };
 

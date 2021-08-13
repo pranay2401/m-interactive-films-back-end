@@ -96,7 +96,23 @@ const resolvers = {
       return res;
     },
 
-    getInteractiveData: async (_, { movieId }) => {
+    isWatchlisted: async (_, { userId, movieId }) => {
+      const ref = firebaseDB
+        .ref()
+        .child("watchlist")
+        .child(`${userId}/movies/${movieId}`);
+      let res;
+      await ref.once("value", (snapshot) => {
+        if (snapshot.empty) {
+          console.log("No matching movies.");
+          return;
+        }
+        res = snapshot.val();
+      });
+      return !_isEmpty(res && Object.values(res)[0]);
+    },
+
+  getInteractiveData: async (_, { movieId }) => {
       let ref = firebaseDB.ref("movies").child(`${movieId}`);
 
       let movie;
@@ -485,6 +501,44 @@ const resolvers = {
         } else {
           // TODO : Sentry log - hotspot does not exist
         }
+      });
+      return res;
+    },
+
+    addToWatchlist: async (parent, { userId, movieId }, { models }) => {
+      if (!movieId || !userId) {
+        return "Invalid request";
+      }
+
+      const ref = firebaseDB
+        .ref("watchlist")
+        .child(`/${userId}/movies/${movieId}`);
+
+      let res;
+      await ref.set(movieId, (error) => {
+        if (error) {
+          return error;
+        }
+        res = movieId;
+      });
+      return res;
+    },
+
+    deleteFromWatchlist: async (parent, { userId, movieId }, { models }) => {
+      if (!movieId || !userId) {
+        return "Invalid request";
+      }
+
+      const ref = firebaseDB
+        .ref("watchlist")
+        .child(`/${userId}/movies/${movieId}`);
+
+      let res;
+      await ref.remove((error) => {
+        if (error) {
+          return error;
+        }
+        res = movieId;
       });
       return res;
     },
