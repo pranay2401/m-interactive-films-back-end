@@ -11,7 +11,7 @@ const port = process.env.PORT || 4001;
 // graphql
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
-const gqlserver = new GraphQLServer({
+const server = new GraphQLServer({
   typeDefs,
   resolvers,
   context: ({ req }) => {
@@ -22,8 +22,17 @@ const gqlserver = new GraphQLServer({
   },
 });
 
-gqlserver.start(() =>
-  console.log(`GraphQL Server is running on localhost:${port}`)
+const options = {
+  port,
+  endpoint: "/graphql",
+  subscriptions: "/subscriptions",
+  playground: "/playground",
+};
+
+server.start(options, ({ port }) =>
+  console.log(
+    `Server started, listening on port ${port} for incoming requests.`
+  )
 );
 
 // const app = express();
