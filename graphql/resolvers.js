@@ -96,6 +96,54 @@ const resolvers = {
       return res;
     },
 
+    getInteractiveData: async (_, { movieId }) => {
+      let ref = firebaseDB.ref("movies").child(`${movieId}`);
+
+      let movie;
+      await ref.once("value", (snapshot) => {
+        if (snapshot.empty) {
+          console.log("No matching movies.");
+          return;
+        }
+        movie = snapshot.val();
+      });
+      let interactiveData;
+      if (movie) {
+        let overlays = movie.overlays;
+
+        interactiveData =
+          overlays &&
+          Object.values(overlays).map((overlay) => {
+            let playerData = {};
+            playerData.overlayId = overlay.id;
+            playerData.overlayName = overlay.name;
+            playerData.templateTitle = overlay.templateTitle;
+            playerData.jumpPoint = overlay.jumpPoint;
+
+            let leftHotspot =
+              movie.hotspots && movie.hotspots[overlay.leftActionHotspot];
+            playerData.templateLeftLabel = leftHotspot && leftHotspot.name;
+            playerData.templateLeftAction =
+              leftHotspot && leftHotspot.startPoint;
+
+            let rightHotspot =
+              movie.hotspots && movie.hotspots[overlay.rightActionHotspot];
+            playerData.templateRightLabel = rightHotspot && rightHotspot.name;
+            playerData.templateRightAction =
+              rightHotspot && rightHotspot.startPoint;
+
+            return playerData;
+          });
+      }
+
+      return (
+        interactiveData &&
+        interactiveData.sort((a, b) => {
+          return a.jumpPoint - b.jumpPoint;
+        })
+      );
+    },
+
     movie: async (_, { id }) => {
       const ref = firebaseDB.ref().child("movies");
       let res;
