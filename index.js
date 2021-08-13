@@ -59,4 +59,4 @@ const getApiAndEmit = (socket) => {
 };
 // <<<<<<< Socket.io example ends
 
-server.listen(4002, () => console.log(`Listening on port ${4002}`));
+server.listen(port, () => console.log(`Listening on port ${port}`));
