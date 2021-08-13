@@ -186,6 +186,7 @@ const typeDefs = `
     hotspot(id: ID!, movieId: ID!): Hotspot
     overlay(id: ID!, movieId: ID!): Overlay
     trigger(id: ID!, movieId: ID!): Trigger
+    getInteractiveData(movieId: ID!): [PlayerOverlay]
   }
 
   type Mutation {
