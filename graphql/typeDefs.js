@@ -183,8 +183,9 @@ const typeDefs = `
     movie(id: ID!): Movie,
     getNewReleases(limit: Int): [Movie],
     getFeatured(limit: Int): [Movie],
-    hotspot(id: ID!, movieId: ID!): Hotspot
-    overlay(id: ID!, movieId: ID!): Overlay
+    getWatchlistMovies(userId: ID!): [Movie],
+    hotspot(id: ID!, movieId: ID!): Hotspot,
+    overlay(id: ID!, movieId: ID!): Overlay,
     trigger(id: ID!, movieId: ID!): Trigger
   }
 
@@ -248,7 +249,17 @@ const typeDefs = `
     deleteTrigger(
       id: ID!,
       movieId: ID!
-    ): String
+    ): String,
+
+    addToWatchlist(
+      userId: ID!,
+      movieId: ID!
+    ): ID,
+
+    deleteFromWatchlist(
+      userId: ID!,
+      movieId: ID!
+    ): ID,
   }
 `;
 
