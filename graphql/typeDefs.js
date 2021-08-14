@@ -127,7 +127,6 @@ const typeDefs = `
   type Movie {
     id: ID,
     mId: String,
-    name: String,
     title: String,
     description: String,
     url: String,
@@ -153,7 +152,6 @@ const typeDefs = `
     mId: ID,
     title: String,
     url: String!,
-    name: String,
     description: String,
     thumbnails: InputThumbnails,
     genre: String,
@@ -205,7 +203,6 @@ const typeDefs = `
       title: String!,
       editorId: ID!,
       url: String!,
-      name: String,
       description: String,
       thumbnails: InputThumbnails,
       genre: String,
