@@ -54,6 +54,42 @@ const resolvers = {
       );
     },
 
+    getWatchlistedMovies: async (_, { userId }) => {
+      let userMoviesRef = firebaseDB
+        .ref()
+        .child("watchlist")
+        .child(`/${userId}/movies`);
+
+      let movieIds;
+      await userMoviesRef.once("value", async (snapshot) => {
+        if (snapshot.empty) {
+          console.log("No matching movies.");
+          return;
+        }
+        const movieIdSnapshot = snapshot.val();
+        movieIds = !_isEmpty(movieIdSnapshot) && Object.values(movieIdSnapshot);
+      });
+
+      let moviesRes;
+      if (movieIds) {
+        let ref = firebaseDB.ref("movies");
+
+        await ref.once("value", (snapshot) => {
+          if (snapshot.empty) {
+            console.log("No matching movies.");
+            return;
+          }
+          moviesRes = snapshot.val();
+        });
+      }
+      return (
+        moviesRes &&
+        movieIds.map((id) => {
+          return moviesRes[id];
+        })
+      );
+    },
+
     getNewReleases: async (_, params) => {
       let ref = firebaseDB.ref().child("movies").orderByChild("createdAt");
 
@@ -112,7 +148,7 @@ const resolvers = {
       return !_isEmpty(res && Object.values(res)[0]);
     },
 
-  getInteractiveData: async (_, { movieId }) => {
+    getInteractiveData: async (_, { movieId }) => {
       let ref = firebaseDB.ref("movies").child(`${movieId}`);
 
       let movie;
