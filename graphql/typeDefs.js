@@ -263,6 +263,10 @@ const typeDefs = `
       userId: ID!,
       movieId: ID!
     ): ID,
+
+    deleteMovie(
+      movieId: ID!
+    ): Movie,
   }
 `;
 
