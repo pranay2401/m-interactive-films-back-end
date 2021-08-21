@@ -578,6 +578,29 @@ const resolvers = {
       });
       return res;
     },
+
+    deleteMovie: async (parent, { id, movieId }, { models }) => {
+      if (!movieId) {
+        return "Invalid id";
+      }
+
+      const ref = firebaseDB.ref("movies").child(`/${movieId}`);
+
+      let res;
+      await ref.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          res = snapshot.val();
+          ref.remove((error) => {
+            if (error) {
+              return error;
+            }
+          });
+        } else {
+          // TODO : Sentry log - movie does not exist
+        }
+      });
+      return res;
+    },
   },
 };
 

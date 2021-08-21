@@ -29,7 +29,9 @@ const typeDefs = `
     medium: Thumbnail,    
     high: Thumbnail,    
     standard: Thumbnail,    
-    maxres: Thumbnail,    
+    maxres: Thumbnail,
+    userThumbnail: Thumbnail,    
+    userBackground: Thumbnail    
   }
 
   input InputThumbnails {
@@ -37,7 +39,9 @@ const typeDefs = `
     medium: InputThumbnail,    
     high: InputThumbnail,    
     standard: InputThumbnail,    
-    maxres: InputThumbnail,    
+    maxres: InputThumbnail,
+    userThumbnail: InputThumbnail,
+    userBackground: InputThumbnail    
   }
 
   type Comment {
@@ -259,6 +263,10 @@ const typeDefs = `
       userId: ID!,
       movieId: ID!
     ): ID,
+
+    deleteMovie(
+      movieId: ID!
+    ): Movie,
   }
 `;
 
