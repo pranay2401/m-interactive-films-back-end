@@ -91,7 +91,7 @@ const resolvers = {
     },
 
     getNewReleases: async (_, params) => {
-      let ref = firebaseDB.ref().child("movies").orderByChild("createdAt");
+      let ref = firebaseDB.ref().child("movies").orderByChild("publishedAt");
 
       if (params && params.limit) {
         ref = ref.limitToFirst(params.limit);
