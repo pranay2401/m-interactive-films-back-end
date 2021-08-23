@@ -67,7 +67,7 @@ const resolvers = {
           return;
         }
         const movieIdSnapshot = snapshot.val();
-        movieIds = !_isEmpty(movieIdSnapshot) && Object.values(movieIdSnapshot);
+        movieIds = movieIdSnapshot && Object.values(movieIdSnapshot);
       });
 
       let moviesRes;
@@ -81,7 +81,27 @@ const resolvers = {
           }
           moviesRes = snapshot.val();
         });
+
+        movieIds = movieIds.filter((id) => {
+          const movie = moviesRes[id];
+          const isExist = !_isEmpty(movie) && movie.isPublished;
+
+          if (!isExist) {
+            const ref = firebaseDB
+              .ref("watchlist")
+              .child(`/${userId}/movies/${id}`);
+
+            let resy;
+            ref.remove((error) => {
+              if (error) {
+                return error;
+              }
+            });
+          }
+          return isExist;
+        });
       }
+
       return (
         moviesRes &&
         movieIds.map((id) => {
