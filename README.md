@@ -35,7 +35,7 @@ The goal of iFlix is to give the viewer the possibility to alter the story, whil
 
 ## **Usage**
 
-This Project has three frontend modules at <https://github.com/pesto-students/im-web-interactive-web.git>.
+This Project has three frontend modules at iFlix.
 1. OTT Module
 2. Studio Module
 3. Admin Module (Will be developed in phase 3)
